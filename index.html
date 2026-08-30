@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shim's Path Finder -- For GOTC</title>
+<meta name="description" content="Find the crafting path that spends your materials as evenly as possible.">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png">
+<link rel="apple-touch-icon" href="assets/icons/favicon-180.png">
+<link rel="stylesheet" href="assets/css/styles.css">
+<script>
+  try {
+    var saved = JSON.parse(localStorage.getItem("pathfinder.settings.v1"));
+    if (saved && (saved.theme === "light" || saved.theme === "dark")) {
+      document.documentElement.setAttribute("data-theme", saved.theme);
+    }
+  } catch (e) { /* no storage — keep the default */ }
+</script>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+
+    <img class="brand-mark" src="assets/icons/logo.png" alt="" width="109" height="128">
+    <div class="brand-text">
+      <h1>Shim's Path Finder</h1>
+      <p>Crafting paths that even out your material usage</p>
+    </div>
+  </div>
+
+  <div class="topbar-actions">
+    <a class="btn coffee" id="supportLink" href="#" target="_blank" rel="noopener noreferrer" hidden></a>
+    <button type="button" class="btn ghost" id="shareBtn" title="Share your setup" aria-label="Share your setup">
+      <span class="btn-glyph" aria-hidden="true">⧉</span><span class="btn-label">Share</span>
+    </button>
+    <button type="button" class="btn ghost" id="helpBtn" title="How it works" aria-label="How it works">
+      <span class="btn-glyph" aria-hidden="true">?</span><span class="btn-label">Help</span>
+    </button>
+    <button type="button" class="btn ghost icon" id="themeBtn" title="Toggle theme" aria-label="Toggle theme">◐</button>
+    <button type="button" class="btn ghost icon" id="settingsBtn" title="Options"
+            aria-label="Options" aria-expanded="false" aria-controls="settingsDrawer">⚙</button>
+  </div>
+</header>
+
+<main class="layout">
+
+  <!-- ---------------------------------------------------------- -->
+  <!--  Sidebar                                                    -->
+  <!-- ---------------------------------------------------------- -->
+  <aside class="sidebar">
+
+    <section class="card">
+      <div class="card-head">
+        <h2>BASIC MATS</h2>
+        <button type="button" class="btn tiny ghost" id="bulkBtn">Paste</button>
+      </div>
+
+      <div class="bulk" id="bulkPanel" hidden>
+        <textarea id="bulkInput" rows="6" spellcheck="false"
+                  placeholder="BI: 5.7M&#10;CB: 4,200,000&#10;DG: 3.1m&#10;&#10;…or: all 5.7m"></textarea>
+        <div class="row gap">
+          <button type="button" class="btn primary tiny" id="bulkApply">Import</button>
+          <button type="button" class="btn ghost tiny" id="bulkCancel">Cancel</button>
+        </div>
+        <p class="hint" id="bulkMsg"></p>
+      </div>
+
+      <div class="mat-grid" id="matGrid"></div>
+
+      <div class="row gap wrap mat-tools">
+        <input type="text" id="setAllInput" class="mini" placeholder="all…" spellcheck="false"
+               aria-label="Set every material to this value">
+        <button type="button" class="btn tiny" id="setAllBtn">Set all</button>
+        <span class="spacer"></span>
+        <span class="muted small" id="matTotal"></span>
+      </div>
+    </section>
+
+  </aside>
+
+
+  <!-- ---------------------------------------------------------- -->
+  <!--  Content                                                    -->
+  <!-- ---------------------------------------------------------- -->
+  <div class="content">
+
+    <section class="card">
+      <div class="tabs" role="tablist" aria-label="What to solve">
+        <button type="button" class="tab active" id="tabStandard" role="tab"
+                aria-selected="true" aria-controls="panelStandard">Lower Levels [1 - 15]</button>
+        <button type="button" class="tab" id="tabCustom" role="tab"
+                aria-selected="false" aria-controls="panelCustom" tabindex="-1">Higher Levels [15 - 50]</button>
+      </div>
+
+      <!-- Standard -->
+      <div class="panel" id="panelStandard" role="tabpanel" aria-labelledby="tabStandard">
+        <div class="solve-row">
+          <label class="field grow">
+            <span class="field-label">Number of Temps</span>
+            <input type="text" id="pathAmount" value="100" inputmode="numeric"
+                   enterkeyhint="go" spellcheck="false">
+          </label>
+          <button type="button" class="btn primary solve" id="solvePathBtn">Find path</button>
+        </div>
+
+
+        <div class="field levels-field">
+          <span class="field-label">Desired Levels</span>
+          <div class="level-grid" id="levelChips" role="group" aria-label="Desired Levels"></div>
+        </div>
+
+        <p class="hint" id="maxHint"></p>
+      </div>
+
+      <!-- Custom -->
+      <div class="panel" id="panelCustom" role="tabpanel" aria-labelledby="tabCustom" hidden>
+        <div class="solve-row">
+          <label class="field">
+            <span class="field-label">Number of Temps</span>
+            <input type="text" id="customAmount" value="100" inputmode="numeric"
+                   enterkeyhint="go" spellcheck="false">
+          </label>
+          <button type="button" class="btn primary solve" id="solveCustomBtn">Find path</button>
+        </div>
+
+        <div class="picker-row">
+          <div class="field picker-block">
+            <span class="field-label">Desired Level</span>
+            <div class="level-grid" id="customLevelChips" role="radiogroup"
+                 aria-label="Desired Level"></div>
+          </div>
+
+          <div class="field picker-block">
+            <span class="field-label">Mat Rarity</span>
+            <div class="rarity-picker" id="customRarity" role="radiogroup" aria-label="Mat Rarity"></div>
+            <p class="hint rarity-hint" id="rarityHint"></p>
+          </div>
+        </div>
+
+        <div class="sets-block">
+          <div class="sets-head">
+            <span class="field-label">Sets to include</span>
+            <span class="spacer"></span>
+            <div class="search-wrap">
+              <span class="search-icon" aria-hidden="true">⌕</span>
+              <input type="search" id="setSearch" class="mini-search" placeholder="Search sets…"
+                     spellcheck="false" aria-label="Search sets">
+            </div>
+          </div>
+
+          <div class="set-browser">
+            <nav class="season-rail" id="seasonRail" aria-label="Seasons"></nav>
+
+            <div class="set-pane">
+              <div class="set-pane-head">
+                <span class="pane-title" id="paneTitle"></span>
+                <span class="spacer"></span>
+                <button type="button" class="btn ghost tiny" id="paneAll">Select all</button>
+                <button type="button" class="btn ghost tiny" id="paneNone">Clear</button>
+              </div>
+              <div class="set-cards" id="setCards"></div>
+              <p class="pane-note" id="paneNote"></p>
+            </div>
+          </div>
+
+          <div class="set-tray" id="setTray"></div>
+          <p class="hint" id="setsHint"></p>
+        </div>
+      </div>
+    </section>
+
+    <div id="alert" class="alert" hidden></div>
+
+    <section class="results" id="results" hidden>
+
+      <div class="stat-row" id="statRow"></div>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>Remaining mat count</h2>
+          <button type="button" class="btn tiny" id="applyBtn">Apply remaining</button>
+        </div>
+        <div class="table-scroll">
+          <table class="mat-table">
+            <thead>
+              <tr><th>Material</th><th class="num">Remaining</th><th class="num">Starting</th><th class="num">Used</th></tr>
+            </thead>
+            <tbody id="matReport"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>Path</h2>
+          <div class="row gap">
+            <label class="inline-field">
+              <span>Order by</span>
+              <select id="sortMode" class="mini-select">
+                <option value="count">Quantity</option>
+                <option value="name">Name</option>
+                <option value="slot">Slot</option>
+                <option value="set">Set</option>
+              </select>
+            </label>
+            <button type="button" class="btn ghost tiny" id="copyPathBtn">Copy path</button>
+          </div>
+        </div>
+        <div id="pathOutput"></div>
+      </section>
+    </section>
+  </div>
+</main>
+
+<!-- ---------------------------------------------------------- -->
+<!--  Options drawer — set-once preferences, out of the way      -->
+<!-- ---------------------------------------------------------- -->
+<div class="drawer-scrim" id="drawerScrim" hidden></div>
+
+<aside class="drawer" id="settingsDrawer" aria-label="Options"
+       aria-hidden="true" hidden>
+  <div class="drawer-head">
+    <h2>Options</h2>
+    <button type="button" class="btn ghost icon" id="drawerClose" aria-label="Close options">✕</button>
+  </div>
+
+  <div class="drawer-body">
+    <section class="card">
+      <label class="switch">
+        <input type="checkbox" id="optShowMats">
+        <span class="track"><span class="thumb"></span></span>
+        <span class="switch-label">
+          Show piece materials
+          <small>List each piece's materials and cost in the path</small>
+        </span>
+      </label>
+
+      <label class="switch">
+        <input type="checkbox" id="optAutoApply">
+        <span class="track"><span class="thumb"></span></span>
+        <span class="switch-label">
+          Auto-apply results
+          <small>Subtract a solved path from your materials automatically</small>
+        </span>
+      </label>
+
+      <label class="field">
+        <span class="field-label">Input scale</span>
+        <select id="optScale">
+          <option value="0">None — use K / M / B suffixes</option>
+          <option value="1000">Thousands (K)</option>
+          <option value="1000000">Millions (M)</option>
+          <option value="1000000000">Billions (B)</option>
+        </select>
+        <small class="hint">Sets the unit the material boxes are typed and read in — pick
+           Millions and <code>5.7</code> means 5.7M. A <code>K</code>/<code>M</code>/<code>B</code>
+           suffix still overrides it for a one-off.</small>
+      </label>
+    </section>
+
+
+    <section class="card danger-card">
+      <div class="card-head"><h2>Start over</h2></div>
+      <p class="hint reset-note">Clears your materials, levels, picked sets and options
+         on this device.</p>
+      <button type="button" class="btn danger" id="resetBtn">Reset everything</button>
+    </section>
+  </div>
+</aside>
+
+<footer class="footer">
+  <span>Everything runs in your browser: nothing is uploaded, and your settings stay on this device.</span>
+  <a class="footer-support" id="supportFooter" href="#" target="_blank" rel="noopener noreferrer" hidden></a>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<dialog id="helpDialog" class="dialog">
+  <div class="dialog-head">
+    <h2>How it works</h2>
+    <button type="button" class="btn ghost icon" id="helpClose" aria-label="Close">✕</button>
+  </div>
+  <div class="dialog-body">
+    <p>Tell it how many pieces you want and it finds the <em>mix</em> of pieces that leaves your
+       materials as level as possible</p>
+
+    <h3>Getting started</h3>
+    <ol>
+      <li>Enter your material counts in the <strong>BASIC MATS</strong> panel.
+          <code>5.7m</code>, <code>5,700,000</code> and <code>5700K</code> all work, and
+          <strong>Paste</strong> takes a whole list at once.</li>
+      <li>Tap the levels you want to craft at, under the amount box.</li>
+      <li>Enter an amount and hit <strong>Find path</strong>.</li>
+    </ol>
+
+    <h3>Coming from the Discord bot</h3>
+    <table class="help-table">
+      <tr><td><code>!path 100</code></td><td><strong>Lower Levels [1 - 15]</strong> tab</td></tr>
+      <tr><td><code>!hpath</code></td><td><strong>Higher Levels [15 - 50]</strong> tab — pick a level, rarity and sets</td></tr>
+      <tr><td><code>!mats</code></td><td><strong>BASIC MATS</strong> panel, or <strong>Paste</strong> for bulk import</td></tr>
+      <tr><td><code>!set_levels</code></td><td>The level buttons under the amount box</td></tr>
+      <tr><td><code>!show_mats</code></td><td>Options <strong>⚙</strong> → Show piece materials</td></tr>
+      <tr><td><code>!set_auto_update</code></td><td>Options <strong>⚙</strong> → Auto-apply results</td></tr>
+      <tr><td><code>!set_scale</code></td><td>Options <strong>⚙</strong> → Input scale</td></tr>
+      <tr><td><code>!max</code></td><td>Shown under the amount box</td></tr>
+    </table>
+
+    <h3>Reading the result</h3>
+    <p><strong>Spread</strong> is the standard deviation of what you have left — lower is a more
+       even burn. <strong>Range</strong> is the gap between your largest and smallest remaining
+       pile. Both are the numbers the solver is actually trying to shrink.</p>
+
+    <h3>Higher Levels [15 - 50]</h3>
+    <p>For running a <em>single</em> level against whichever sets you like. Pick the level, the
+       rarity, and tick the sets to craft from — search by set name, season, or advanced material.</p>
+    <p>Sets that need an advanced material work fine here. That material is left out of the
+       optimisation on purpose (there's nothing to trade it off against), but its total
+       consumption is reported with your other materials afterwards.</p>
+  </div>
+</dialog>
+
+<dialog id="shareDialog" class="dialog">
+  <div class="dialog-head">
+    <h2>Share your setup</h2>
+    <button type="button" class="btn ghost icon" id="shareClose" aria-label="Close">✕</button>
+  </div>
+  <div class="dialog-body">
+    <p>Your materials, levels, options and picked sets, as one code. Paste it on
+       another device to open everything exactly as it is here.</p>
+
+    <h3>Your code</h3>
+    <textarea id="shareOut" class="code-box" rows="4" readonly spellcheck="false"></textarea>
+    <div class="row gap">
+      <button type="button" class="btn primary tiny" id="shareCopy">Copy code</button>
+      <span class="spacer"></span>
+      <span class="muted small" id="shareSize"></span>
+    </div>
+
+    <h3>Open a code</h3>
+    <textarea id="shareIn" class="code-box" rows="4" spellcheck="false"
+              placeholder="Paste a code beginning with PFS1…"></textarea>
+    <div class="row gap">
+      <button type="button" class="btn primary tiny" id="shareApply">Load it</button>
+      <button type="button" class="btn ghost tiny" id="shareClear">Clear</button>
+    </div>
+    <p class="hint" id="shareMsg"></p>
+
+    <p class="hint">Loading a code replaces everything you have here, so copy your
+       own first if you want to keep it. Codes stay readable as the game adds gear:
+       sets are stored by name, so a new season simply arrives unselected, and a set
+       that has since been retired is skipped and reported rather than turning into
+       the wrong one.</p>
+  </div>
+</dialog>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/optimizer.js"></script>
+<script src="assets/js/solver.js"></script>
+<script src="assets/js/format.js"></script>
+<script src="assets/js/store.js"></script>
+<script src="assets/js/share.js"></script>
+<script src="assets/js/ui.js"></script>
+</body>
+</html>
