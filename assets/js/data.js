@@ -611,6 +611,14 @@ globalThis.PF = globalThis.PF || {};
       Ring:   ["IW", "DG", "+BI"],  Weapon: ["HD", "WF", "+LS"]
     }),
 
+    /* ---- Season 14 ------------------------------------------------------ */
+
+    eventSet("Dragonseed", "Dragonseed", "S14", "Dragonseed", {
+      Helmet: ["DG", "HD", "+SK"],  Chest:  ["SK", "KW", "+MP"],
+      Pants:  ["CB", "BI", "+GH"],  Boots:  ["GH", "LS", "+WF"],
+      Ring:   ["MP", "WW", "+CB"],  Weapon: ["WF", "IW", "+DG"]
+    }),
+
   ];
 
 
