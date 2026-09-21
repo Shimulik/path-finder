@@ -717,6 +717,28 @@ globalThis.PF = globalThis.PF || {};
 
     tableSet("basic", "Basic", "S0", "", `
       level | slot   | piece                     | materials      | cost
+      # ---- Level 5 ----
+      5     | Helmet | Wool Bandana              | KW MP          | 15
+      5     | Chest  | Boiled Leather Shirt      | HD DG          | 15
+      5     | Pants  | Leather Polyns            | HD LS          | 15
+      5     | Boots  | Leather Booties           | HD SK WW       | 10
+      5     | Ring   | Bronze Band               | CB MP          | 15
+      5     | Weapon | Wool Bandana              | LS WF          | 15
+
+      # ---- Level 10 ----
+      5     | Helmet | Copper Pot                | CB LS          | 30
+      5     | Helmet | Straw Hat                 | SK LS DG       | 20
+      5     | Chest  | Wool Robe                 | MP HD          | 30
+      5     | Chest  | Padded Armor              | IW SK          | 30
+      5     | Pants  | Wool Leggings             | HD WF          | 30
+      5     | Pants  | Ragged Shorts             | LS MP          | 30
+      5     | Boots  | Velvet Boots              | SK WF          | 30
+      5     | Boots  | Galoshes                  | WW KW          | 30
+      5     | Ring   | Pyrite Lament             | DG KW          | 30
+      5     | Ring   | Quartz Ring               | DG WW          | 30
+      5     | Weapon | Mace                      | WW BI          | 30
+      5     | Weapon | Short Bow                 | GH SK          | 30
+      
       # ---- Level 15 ----
       15    | Helmet | Iron Skullcap             | BI LS          | 180
       15    | Helmet | Mushroom Cap              | WF WW          | 180
