@@ -723,21 +723,21 @@ globalThis.PF = globalThis.PF || {};
       5     | Pants  | Leather Polyns            | HD LS          | 15
       5     | Boots  | Leather Booties           | HD SK WW       | 10
       5     | Ring   | Bronze Band               | CB MP          | 15
-      5     | Weapon | Wool Bandana              | LS WF          | 15
+      5     | Weapon | Spear                     | LS WF          | 15
 
       # ---- Level 10 ----
-      5     | Helmet | Copper Pot                | CB LS          | 30
-      5     | Helmet | Straw Hat                 | SK LS DG       | 20
-      5     | Chest  | Wool Robe                 | MP HD          | 30
-      5     | Chest  | Padded Armor              | IW SK          | 30
-      5     | Pants  | Wool Leggings             | HD WF          | 30
-      5     | Pants  | Ragged Shorts             | LS MP          | 30
-      5     | Boots  | Velvet Boots              | SK WF          | 30
-      5     | Boots  | Galoshes                  | WW KW          | 30
-      5     | Ring   | Pyrite Lament             | DG KW          | 30
-      5     | Ring   | Quartz Ring               | DG WW          | 30
-      5     | Weapon | Mace                      | WW BI          | 30
-      5     | Weapon | Short Bow                 | GH SK          | 30
+      10    | Helmet | Copper Pot                | CB LS          | 30
+      10    | Helmet | Straw Hat                 | SK LS DG       | 20
+      10    | Chest  | Wool Robe                 | MP HD          | 30
+      10    | Chest  | Padded Armor              | IW SK          | 30
+      10    | Pants  | Wool Leggings             | HD WF          | 30
+      10    | Pants  | Ragged Shorts             | LS MP          | 30
+      10    | Boots  | Velvet Boots              | SK WF          | 30
+      10    | Boots  | Galoshes                  | WW KW          | 30
+      10    | Ring   | Pyrite Lament             | DG KW          | 30
+      10    | Ring   | Quartz Ring               | DG WW          | 30
+      10    | Weapon | Mace                      | WW BI          | 30
+      10    | Weapon | Short Bow                 | GH SK          | 30
       
       # ---- Level 15 ----
       15    | Helmet | Iron Skullcap             | BI LS          | 180
@@ -898,7 +898,7 @@ globalThis.PF = globalThis.PF || {};
       50    | Weapon | Greatbow                  | GH LS SK WF    | 450000
       50    | Weapon | Greatsword                | WW HD CB WF    | 450000
       50    | Weapon | War Hammer                | KW IW BI WF    | 450000
-    `),
+    `, true),
 
 
 
