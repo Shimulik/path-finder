@@ -733,7 +733,7 @@ globalThis.PF = globalThis.PF || {};
       10    | Pants  | Wool Leggings             | HD WF          | 30
       10    | Pants  | Ragged Shorts             | LS MP          | 30
       10    | Boots  | Velvet Boots              | SK WF          | 30
-      10    | Boots  | Galoshes                  | WW KW          | 30
+      10    | Boots  | Galoshes                  | WW IW          | 30
       10    | Ring   | Pyrite Lament             | DG KW          | 30
       10    | Ring   | Quartz Ring               | DG WW          | 30
       10    | Weapon | Mace                      | WW BI          | 30
